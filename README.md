@@ -131,11 +131,11 @@ These are pop-ups that appear on your screen when you toggle your Mic, or change
 
 - Create a scheduled task to launch `ASUSOSD.exe` on every login, or drag the app's shortcut to `shell:common startup` folder in order to start it on boot for all users.
 
-## Setup power settings
+## Third party utilities
 
 - Use [**cronosun/atrofac**](https://github.com/cronosun/atrofac) to control fans.
 
-- Use [**aredden/electron-G14Control**](/aredden/electron-G14Control) to limit battery charge amongst other things
+- Use [**aredden/electron-G14Control**](/aredden/electron-G14Control) to limit battery charge amongst other things.
 
 - Use [**pratyakshm/RestorePowerOptions**](https://github.com/pratyakshm/RestorePowerOptions) to restore all advanced power options. Run this command: 
 ```
@@ -148,6 +148,7 @@ powercfg.exe -import "C:\Users\Praty\Downloads\PratyakshPlan.pow"
 ```
 Download the power plan from this reposiory's root directory.
 
+- Avoid usage of Fn keys using [**okkosh/FN-key-lock**](https://github.com/okkosh/FN-key-lock).
 
 # Conclusion
 

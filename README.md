@@ -1,43 +1,50 @@
 # Setup 2021 G14
 
-This document covers the initial setup phase of 2021 ROG Zephyrus G14 laptop. It includes debloating OEM services to the bare minimum, and using alternative and better trusted device control apps.
+In this document, I have documented how I set up and manage my 2021 ASUS ROG G14 (GA401QH) device.
+
 
 # WARRANTY
 THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 If you proceed anyway, know that serious problems might arise as a result of doing one or more of the software modifications as listed in this document. In some cases, your warranty might get void as well - and I won't be liable to damages.
 
+
+## Re-install Windows
+
+This is extremely important. It's extremely important to re-install Windows.
+
+To learn how to back up your apps, documents, files, etc., re-install Windows, and restore your data, read [this document](https://github.com/pratyakshm/WinRice/wiki/Fresh-installation-of-Windows).
+
+
 ## Windows edition
-OEMs force installation of shipping edition of Windows instead of providing user the liberty to choose Windows edition on setup. Check current Windows edition using winver, I preferrably want it to be Pro, Pro for Workstations or Enterprise.
 
-If it's a different edition, try changing edition using [this script](https://github.com/massgravel/Microsoft-Activation-Scripts/releases).
+Use an edition of Windows that's based on the Professional SKU. Windows 11 Enterprise, Pro or Pro for Workstations will suffice.
 
-## Drivers
+OEMs put a block while re-installing Windows defaults to installing the shipping edition of Windows (usually Home) and does not enable users to select an edition of their choice.
 
-💡 To get access to Dolby Access, update your device from Windows Update first which will also update your audio drivers, which power the Dolby Atmos experience.
-
-- Once Windows Update is done updating your device and all restarts are done, check Windows Update for updates again. Make sure that **no updates are left to apply**.
-
-#### Use Group policy editor to disable driver delivery using Windows Update.
- 
-I disable driver delivery via Windows Update because Windows Update force deploys display drivers of Version 27 instead of 30, and that causes issues in Windows 11 operating system.
-
-- Update display drivers from [AMD website](https://www.amd.com/en/support). Choose optional drivers.
-
-- If AMD's Drivers tool could not install Chipset drivers, install them  from [this link](https://dlcdnets.asus.com/pub/ASUS/GamingNB/Image/Driver/Chipset/23894/AMD_Chipset_DriverOnly_ROG_AMD_Z_V1.2.0.118Sub5_23894.exe) from [ASUS' website](https://rog.asus.com/in/laptops/rog-zephyrus/2021-rog-zephyrus-g14-series/helpdesk_download). The chipset drivers are somehow, sometimes, not update-able via AMD's tool, I think this might be due to a block put in place by the OEM but I am unsure.
-
-- Check MyASUS app for any pending driver updates, etc. This step is extremely important, do not miss it.
-
-- Update Nvidia GeForce drivers from [Nvidia's website](https://www.nvidia.com/Download/index.aspx). Choose Studio Drivers instead of Game Drivers. Do not install GeForce Experience app.
-
-- Install IOBit Driver Booster from winget using `winget install IOBit.DriverBooster9`, and check for any drivers that are left to be updated.
-
-- Make sure there are no unknown devices in Device Manager. If you have one, it's most likely ASUS Wireless Radio Control - driver updates for this are available on Driver Booster 9.
-
-- After Unknown devices are cleared from Device Manager, perform a device reboot and check if basic functionality is working as it should.
+If you have already installed an edition of Windows that's not based on the Professional SKU, you may change your Windows edition without having to re-install the OS using [this script](https://github.com/massgravel/Microsoft-Activation-Scripts).
 
 
+## Device Drivers
 
-## Setup biometrics
+### Things to know:
+
+- Update all your drivers from Windows Update, and ensure that all drivers are updated from MyASUS app.
+
+- Do not get driver updates from AMD's official website. If you do, compatibility issues may arise with AMD Radeon Software.
+
+- If Windows Update drivers do not suffice, another place to look at is [this webpage in ASUS's website](https://rog.asus.com/in/laptops/rog-zephyrus/2021-rog-zephyrus-g14-series/helpdesk_download).
+
+
+### Notes:
+
+- If Windows installs a version 27 graphics driver, disable driver delivery from Windows Update using Group policy editor and re-install a newer driver from ASUS's website
+
+- If Dolby Access asks for a subscription, install your Audio drivers and Dolby Atmos for PC driver from the MyASUS app or ASUS' website, though the former is recommended.
+
+- Make sure there are no unknown devices in Device manager. If you see any, its most likely the ASUS Wireless Radio Control that enables Airplane mode hotkey, and you can get the driver from Driver Booster by IOBit.
+
+
+## Setup Windows Hello and Biometric Hardware
 
 - Register fingerprints to your device.
 
@@ -48,29 +55,46 @@ I disable driver delivery via Windows Update because Windows Update force deploy
 - Go to Power management and ensure both options "Allow the computer to turn off this device to save power" and "Allow this device to wake the computer" are left unchecked.
 
 
+## De-ASUSify
 
-## Perform these checks before cleanup
+### Pre-requisites:
 
-- Screen calibration is fine.
+- Vari Bright is disabled in AMD Radeon Software.
 
-- Vari Bright in AMD Radeon Software is disabled.
+- Color calibration is ok.
 
-- All hotkeys are functional.
+- All hotkeys functional.
 
-- Dolby Access app operational as expected.
+- Dolby Access functional.
 
-## Cleanup
+- On screen display (OSD) functional. 
 
-- Create a System Restore point. This is highly recommended.
 
-- Use BCUninstaller to delete every single app and / or program that is related to OEM. Tags include `asus`, `rog`, `armourycrate`, `armoury crate`, `rogliveservice`. 
+### Kill ASUS apps to avoid conflicts during uninstallation
 
-- Disable all ASUS services except ``ASUS Optimization Service`` which is used to control keyboard hotkeys.
+Copy paste this code into elevated CMD/PS:
+```
+taskill /f /im ASUS*
+taskkill /f /im Armoury*
+taskkill /f /im ROG*
+taskkill /f /im P50*
+```
 
-- Save the below content as a .bat file and run as admin:
+
+### Cleanup
+
+- **Crucial**: Create a System Restore point.
+
+- Install BCUninstaller using `winget install bcuninstaller`.
+
+- Use BCUninstaller to delete programs related to ASUS. Tags include `asus`, `rog`, `armourycrate`, `armoury crate` and `rogliveservice`. 
+
+- Stop and delete redundant ASUS-related services by copy pasting this code into an elevated CMD/PS window:
+
+<details><summary>Click here to expand/collapse</summary>
 
 ```
-rem Disable non-essential ASUS services
+rem Stop & Delete ASUS services
 sc stop ASUSLinkNear
 sc stop ASUSLinkNearExt
 sc stop ASUSLinkRemote
@@ -78,7 +102,6 @@ sc stop ASUSSoftwareManager
 sc stop ASUSSystemAnalysis
 sc stop ASUSSystemDiagnosis
 
-rem Delete ASUS services (yet again)
 sc delete ASUSLinkNear
 sc delete ASUSLinkNearExt
 sc delete ASUSLinkRemote
@@ -90,66 +113,59 @@ rem Disable AMD Crash Defender
 sc stop "AMD Crash Defender Service"
 sc config "AMD Crash Defender Service" start=disabled
 ```
+</details>
 
-The above code was used from [**sammilucia/ASUS-G14-Debloating**](https://github.com/sammilucia/ASUS-G14-Debloating), with modifications.
+**P.S.:** Do not disable ASUS Optimization as it is used to power On screen display (OSD) and keyboard hotkeys.
 
-### Kill all ASUS apps running in background
+- Delete everything associated with `ArmouryDevice`, `ROG Live Service`, `Update`, `ASUS` in these folders:
+    
+    - C:\Program Files (x86)
 
-Use these commands in an elevated terminal session:
+    - %LocalAppData%
 
-```
-taskill /f /im ASUS*
-taskkill /f /im Armoury*
-taskkill /f /im ROG*
-taskkill /f /im P50*
-```
+    - C:\ProgramData
 
-### Delete residual files and folders
+    - C:\Program Files
 
-Target tags: `ArmouryDevice`, `ROG Live Service`, `Update`, `ASUS`.
-Find folder names that contain these tags in the following location and permanently delete them:
-- C:\Program Files (x86)
-- %LocalAppData%
+- Additionally, install Everything (``winget install voidtools.Everything``) and search for files and folders that contain the names mentioned above. If you find anything, research about them and take actions accordingly.
 
-## Scheduled Tasks
+- In Task Scheduler, delete everything associated with ASUS and disable everything associated with AMD.
 
-1. Open Task Scheduler.
-
-2. Delete the ASUS folder.
-
-3. Delete all tasks related to ASUS in other folders.
-
-4. Disable all tasks related to AMD in other folders.
 
 ## Enable On-screen display (OSD)
 
-These are pop-ups that appear on your screen when you toggle your Mic, or change your Power settings.
+These are pop-ups that appear on your screen when you toggle your Mic, change your keyboard brightness or modify your Power settings.
 
-- Go to `C:\Windows\System32\DriverStore\FileRepository`.
+- Go to the following directory:
+
+```
+C:\Windows\System32\DriverStore\FileRepository
+```
 
 - Type `asussci` and you will find a folder named `asussci2.inf_amd64_<UID>`. Open that folder and navigate to `ASUSOptimization` folder.
 
-- Create a scheduled task to launch `ASUSOSD.exe` on every login, or drag the app's shortcut to `shell:common startup` folder in order to start it on boot for all users.
+- Create a shortcut for ASUSOSD.exe and place it in ``shell:common startup`` directory.
 
-## Third party utilities
+- Done!
 
-- Use [**cronosun/atrofac**](https://github.com/cronosun/atrofac) to control fans.
 
-- Use [**aredden/electron-G14Control**](/aredden/electron-G14Control) to limit battery charge amongst other things.
+## Energy Management
 
-- Use [**pratyakshm/RestorePowerOptions**](https://github.com/pratyakshm/RestorePowerOptions) to restore all advanced power options. Run this command: 
+- Run [**pratyakshm/RestorePowerOptions**](https://github.com/pratyakshm/RestorePowerOptions) to expose power settings: 
 ```
 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://bit.ly/RestorePowerOptions'))
 ```
 
-- Setup Power plan using
-```
-powercfg.exe -import "C:\Users\Praty\Downloads\PratyakshPlan.pow"
-```
-Download the power plan from this reposiory's root directory.
+- Use [**aredden/electron-G14Control**](https://github.com/aredden/electron-G14Control). This is the utility that I use to manage my device. Import [downloaded config](https://github.com/pratyakshm/G14_setup/blob/main/config/G14ControlConfig.datas).
 
-- Avoid usage of Fn keys using [**okkosh/FN-key-lock**](https://github.com/okkosh/FN-key-lock).
+- Import [downloaded Power plan](https://github.com/pratyakshm/G14_setup/blob/main/config/PowerPlan.pow):
+```
+powercfg.exe -import "path-to-downloaded-plan"
+```
+
+~~- Avoid usage of Fn keys using [**okkosh/FN-key-lock**](https://github.com/okkosh/FN-key-lock).~~
+
 
 # Conclusion
 
-This covers the initial device setup of 2021 ASUS ROG Zephyrus G14.
+That is all, hopefully!
